@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <title>JSONPath Валидатор</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
+        form { background: #f4f4f4; padding: 20px; border-radius: 5px; width: 50%; margin: auto; }
+        textarea, input { width: 90%; padding: 10px; margin-top: 10px; border: 1px solid #ddd; }
+        button { background: blue; color: white; padding: 10px; border: none; cursor: pointer; }
+        .error { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>JSONPath Валидатор</h1>
+    <form method="POST">
+        <textarea name="json_data" rows="5" placeholder="Въведете JSON"></textarea><br>
+        <input type="text" name="jsonpath_query" placeholder="JSONPath заявка"><br>
+        <button type="submit">Провери</button>
+    </form>
+
+    {% if result %}
+        <h3>Резултат:</h3>
+        <p>{{ result }}</p>
+    {% endif %}
+
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% endif %}
+</body>
+</html>

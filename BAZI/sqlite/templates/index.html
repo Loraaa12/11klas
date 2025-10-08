@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSONPath Checker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 20px;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+        }
+        form {
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            width: 50%;
+            margin: 20px auto;
+        }
+        textarea, input {
+            width: 90%;
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            margin-top: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .results {
+            margin-top: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            width: 50%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>JSONPath Checker</h1>
+
+    <h2>Upload JSON</h2>
+    <form method="POST">
+        {{ json_form.hidden_tag() }}
+        {{ json_form.json_input(rows=5) }}<br>
+        {% for error in json_form.json_input.errors %}
+            <p class="error">{{ error }}</p>
+        {% endfor %}
+        <button type="submit">{{ json_form.submit_json.label }}</button>
+    </form>
+
+    <h2>Run JSONPath Query</h2>
+    <form method="POST">
+        {{ query_form.hidden_tag() }}
+        {{ query_form.jsonpath_query(size=50) }}<br>
+        <button type="submit">{{ query_form.submit_query.label }}</button>
+    </form>
+
+    {% if results is not none %}
+        <div class="results">
+            <h2>Results</h2>
+            {% for result in results %}
+                <p><strong>JSON ID {{ result.id }}:</strong> {{ result.matches }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+</body>
+</html>
