@@ -1,0 +1,7 @@
+[20250529_012853] Compiling src/main.c...
+[20250529_012853] Compilation successful.
+[20250529_012853] Running bin/main.out 10 20...
+Program received 2 arguments:
+arg1: 10
+arg2: 20
+[20250529_012853] Program exited with code 0.

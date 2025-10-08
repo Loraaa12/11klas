@@ -1,0 +1,138 @@
+The Fork system call is used for creating a new process in Linux, and Unix systems, which is called the child process, which runs concurrently with the process that makes the fork() call (parent process). After a new child process is created, both processes will execute the next instruction following the fork() system call.
+
+The child process uses the same pc(program counter), same CPU registers, and same open files which use in the parent process. It takes no parameters and returns an integer value.
+
+Below are different values returned by fork().
+
+Negative Value: The creation of a child process was unsuccessful.
+Zero: Returned to the newly created child process.
+Positive value: Returned to parent or caller. The value contains the process ID of the newly created child process.
+
+
+
+#define _OPEN_SYS
+#include <sys/wait.h>
+
+pid_t waitpid(pid_t pid, int *status_ptr, int options);
+pid_t pid
+Specifies the child processes the caller wants to wait for:
+If pid is greater than 0, waitpid() waits for termination of the specific child whose process ID is equal to pid.
+If pid is equal to 0, waitpid() waits for termination of any child whose process group ID is equal to that of the caller.
+If pid is -1, waitpid() waits for any child process to end.
+If pid is less than -1, waitpid() waits for the termination of any child whose process group ID is equal to the absolute value of pid.
+int *status_ptr
+Points to a location where waitpid() can store a status value. This status value is 0 if the child process explicitly returns a 0 status. Otherwise, it is a value that can be analyzed with the status analysis macros described in “Status Analysis Macros,” below.
+The status_ptr pointer may also be NULL, in which case waitpid() ignores the child's return status.
+
+int options
+Specifies additional information for waitpid(). The options value is constructed from the bitwise inclusive OR of zero or more of the following manifests defined in the sys/wait.h header file:
+WCONTINUED
+Special Behavior for XPG4.2: Reports the status of any continued child processes as well as terminated ones. The WIFCONTINUED macro lets a process distinguish between a continued process and a terminated one.
+WNOHANG
+Demands status information immediately. If status information is immediately available on an appropriate child process, waitpid() returns this information. Otherwise, waitpid() returns immediately with an error code, indicating that the information was not available. In other words, WNOHANG checks child processes without causing the caller to be suspended.
+WUNTRACED
+Reports on stopped child processes as well as terminated ones. The WIFSTOPPED macro lets a process distinguish between a stopped process and a terminated one.
+
+
+
+int execve(const char *filename, char *const argv[],
+char *const envp[]);
+
+Description
+execve() executes the program pointed to by filename. filename must be either a binary executable, or a script starting with a line of the form:
+
+
+#include <sys/stat.h>
+
+int stat(const char *restrict path, struct stat *restrict buf);
+
+DESCRIPTION
+The stat() function shall obtain information about the named file and write it to the area pointed to by the buf argument. The path argument points to a pathname naming a file. Read, write, or execute permission of the named file is not required. An implementation that provides additional or alternate file access control mechanisms may, under implementation-defined conditions, cause stat() to fail. In particular, the system may deny the existence of the file specified by path.
+
+If the named file is a symbolic link, the stat() function shall continue pathname resolution using the contents of the symbolic link, and shall return information pertaining to the resulting file if the file exists.
+
+The buf argument is a pointer to a stat structure, as defined in the <sys/stat.h> header, into which information is placed concerning the file.
+
+The stat() function shall update any time-related fields (as described in the Base Definitions volume of IEEE Std 1003.1-2001, Section 4.7, File Times Update), before writing into the stat structure.
+
+Unless otherwise specified, the structure members st_mode, st_ino, st_dev, st_uid, st_gid, st_atime, st_ctime, and st_mtime shall have meaningful values for all file types defined in this volume of IEEE Std 1003.1-2001. The value of the member st_nlink shall be set to the number of links to the file.
+
+RETURN VALUE
+Upon successful completion, 0 shall be returned. Otherwise, -1 shall be returned and errno set to indicate the error.
+
+
+
+
+#include <unistd.h>
+
+int link(const char *path1, const char *path2);
+
+DESCRIPTION
+The link() function shall create a new link (directory entry) for the existing file, path1.
+
+The path1 argument points to a pathname naming an existing file. The path2 argument points to a pathname naming the new directory entry to be created. The link() function shall atomically create a new link for the existing file and the link count of the file shall be incremented by one.
+
+If path1 names a directory, link() shall fail unless the process has appropriate privileges and the implementation supports using link() on directories.
+
+Upon successful completion, link() shall mark for update the st_ctime field of the file. Also, the st_ctime and st_mtime fields of the directory that contains the new entry shall be marked for update.
+
+If link() fails, no link shall be created and the link count of the file shall remain unchanged.
+
+The implementation may require that the calling process has permission to access the existing file.
+
+RETURN VALUE
+Upon successful completion, 0 shall be returned. Otherwise, -1 shall be returned and errno set to indicate the error.
+
+
+
+
+#include <sys/mount.h>
+
+       int mount(const char *source, const char *target,
+                 const char *filesystemtype, unsigned long mountflags,
+                 const void *_Nullable data);
+DESCRIPTION         top
+       mount() attaches the filesystem specified by source (which is
+       often a pathname referring to a device, but can also be the
+       pathname of a directory or file, or a dummy string) to the
+       location (a directory or file) specified by the pathname in
+       target.
+
+       Appropriate privilege (Linux: the CAP_SYS_ADMIN capability) is
+       required to mount filesystems.
+
+       Values for the filesystemtype argument supported by the kernel
+       are listed in /proc/filesystems (e.g., "btrfs", "ext4", "jfs",
+       "xfs", "vfat", "fuse", "tmpfs", "cgroup", "proc", "mqueue",
+       "nfs", "cifs", "iso9660").  Further types may become available
+       when the appropriate modules are loaded.
+
+       The data argument is interpreted by the different filesystems.
+       Typically it is a string of comma-separated options understood by
+       this filesystem.  See mount(8) for details of the options
+       available for each filesystem type.  This argument may be
+       specified as NULL, if there are no options.
+
+       A call to mount() performs one of a number of general types of
+       operation, depending on the bits specified in mountflags.  The
+       choice of which operation to perform is determined by testing the
+       bits set in mountflags, with the tests being conducted in the
+       order listed here:
+
+       •  Remount an existing mount: mountflags includes MS_REMOUNT.
+
+       •  Create a bind mount: mountflags includes MS_BIND.
+
+       •  Change the propagation type of an existing mount: mountflags
+          includes one of MS_SHARED, MS_PRIVATE, MS_SLAVE, or
+          MS_UNBINDABLE.
+
+       •  Move an existing mount to a new location: mountflags includes
+          MS_MOVE.
+
+       •  Create a new mount: mountflags includes none of the above
+          flags.
+
+       Each of these operations is detailed later in this page.  Further
+       flags may be specified in mountflags to modify the behavior of
+       mount(), as described below.
